@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
   import DepositApprovals from './lib/components/DepositApprovals.svelte';
   import ServiceManager from './lib/components/ServiceManager.svelte';
+  import OrderManager from './lib/components/OrderManager.svelte';
+  import WebProfileSettings from './lib/components/WebProfileSettings.svelte';
 
   let currentTab = 'services';
   let providerBalance = 'Rp 1.840.000';
@@ -98,6 +100,13 @@
       </button>
       <button
         type="button"
+        class="px-3 py-1.5 rounded-md text-xs font-medium transition-all {currentTab === 'orders' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'}"
+        on:click={() => currentTab = 'orders'}
+      >
+        Pesanan Client (CRUD)
+      </button>
+      <button
+        type="button"
         class="px-3 py-1.5 rounded-md text-xs font-medium transition-all {currentTab === 'deposits' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'}"
         on:click={() => currentTab = 'deposits'}
       >
@@ -105,10 +114,10 @@
       </button>
       <button
         type="button"
-        class="px-3 py-1.5 rounded-md text-xs font-medium transition-all {currentTab === 'orders' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'}"
-        on:click={() => currentTab = 'orders'}
+        class="px-3 py-1.5 rounded-md text-xs font-medium transition-all {currentTab === 'profile' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'}"
+        on:click={() => currentTab = 'profile'}
       >
-        Pesanan Client
+        Company Profile & Web
       </button>
     </div>
   </div>
@@ -117,16 +126,12 @@
   <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
     {#if currentTab === 'services'}
       <ServiceManager />
+    {:else if currentTab === 'orders'}
+      <OrderManager />
     {:else if currentTab === 'deposits'}
       <DepositApprovals />
-    {:else if currentTab === 'orders'}
-      <div class="admin-card rounded-xl p-6 space-y-3">
-        <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Manajemen Pesanan Global</h3>
-        <p class="text-xs text-zinc-500 leading-relaxed">Seluruh pesanan yang masuk dari member client akan diteruskan ke provider upstream SMM v2 secara otomatis.</p>
-        <div class="p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg text-center text-zinc-400 text-xs font-mono border border-zinc-200 dark:border-zinc-800">
-          Antrean sinkronisasi status aktif berjalan via cron daemon setiap 2 menit.
-        </div>
-      </div>
+    {:else if currentTab === 'profile'}
+      <WebProfileSettings />
     {/if}
   </main>
 </div>

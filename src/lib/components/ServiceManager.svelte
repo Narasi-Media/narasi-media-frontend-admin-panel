@@ -173,6 +173,31 @@
     showServiceModal = true;
   }
 
+  function openDuplicateModal(srv) {
+    isEditing = false;
+    const orig = srv.price_original?.amount || 0;
+    const user = srv.price_user?.amount || 0;
+    customMarginPercent = orig > 0 ? Math.round(((user - orig) / orig) * 100) : 0;
+
+    serviceForm = {
+      id: '',
+      category_id: srv.category_id,
+      name: `${srv.name} (Copy)`,
+      service_type: srv.service_type || 'default',
+      price_original: orig,
+      price_user: user,
+      min_order: srv.min_order,
+      max_order: srv.max_order,
+      refill_supported: srv.refill_supported,
+      refill_days: srv.refill_days,
+      description: srv.description || '',
+      provider_id: srv.provider_id || 'prov-1',
+      provider_service_id: srv.provider_service_id || '',
+      is_active: true
+    };
+    showServiceModal = true;
+  }
+
   function applyMarginToPriceUser(pct) {
     customMarginPercent = pct;
     const orig = Number(serviceForm.price_original) || 0;
@@ -587,6 +612,17 @@
                 <!-- Actions: Edit & Delete -->
                 <td class="px-4 py-3 align-top text-right whitespace-nowrap">
                   <div class="flex items-center justify-end space-x-1">
+                    <button
+                      type="button"
+                      on:click={() => openDuplicateModal(srv)}
+                      class="p-1.5 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                      title="Duplikat Layanan"
+                    >
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                    </button>
                     <button
                       type="button"
                       on:click={() => openEditModal(srv)}
