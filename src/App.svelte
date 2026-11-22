@@ -328,14 +328,14 @@
         {#if !isCollapsed}
           <div class="flex items-center space-x-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            <span>API :8080 OK</span>
+            <span>Sistem Normal</span>
           </div>
           <span class="text-[9px] text-zinc-400" title="Geser garis tepi kanan untuk ubah lebar">
             {sidebarWidth}px
           </span>
         {:else}
           <div class="w-full flex justify-center">
-            <span class="w-2 h-2 rounded-full bg-emerald-500" title="API :8080 OK"></span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500" title="Sistem Normal"></span>
           </div>
         {/if}
       </div>

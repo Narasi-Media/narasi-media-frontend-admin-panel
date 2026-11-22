@@ -164,7 +164,7 @@
         </h2>
       </div>
       <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-        Monitor antrean pesanan masuk, pantau status provider upstream, serta eksekusi override status dan refund otomatis.
+        Monitor antrean pesanan masuk, pantau progres eksekusi sistem, serta kelola penyesuaian status dan pengembalian dana otomatis.
       </p>
     </div>
 

@@ -52,14 +52,14 @@
         </h2>
       </div>
       <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-        Ringkasan performa real-time, status keuangan provider, antrean verifikasi manual, dan metrik operasional.
+        Ringkasan performa real-time, status saldo operasional, antrean verifikasi manual, dan metrik layanan.
       </p>
     </div>
 
     <!-- Quick Status Badge -->
     <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-mono font-medium self-start">
       <span>●</span>
-      <span>Upstream SMM v2 Connected (42ms)</span>
+      <span>Koneksi Server Otomasi Aktif (42ms)</span>
     </div>
   </div>
 
@@ -68,14 +68,14 @@
     <!-- Saldo Provider -->
     <div class="admin-card rounded-xl p-4 space-y-2">
       <div class="flex items-center justify-between text-xs text-zinc-500">
-        <span class="font-mono text-[10px] uppercase tracking-wider font-semibold">Saldo Provider</span>
+        <span class="font-mono text-[10px] uppercase tracking-wider font-semibold">Saldo Operasional</span>
         <span class="text-xs">⚡</span>
       </div>
       <div class="text-xl font-bold font-mono text-zinc-900 dark:text-zinc-100">
         {providerBalance}
       </div>
       <div class="text-[11px] text-zinc-500 flex items-center justify-between">
-        <span>Sisa limit upstream</span>
+        <span>Kapasitas Kuota Server</span>
         <span class="text-emerald-600 dark:text-emerald-400 font-medium">Aman</span>
       </div>
     </div>
