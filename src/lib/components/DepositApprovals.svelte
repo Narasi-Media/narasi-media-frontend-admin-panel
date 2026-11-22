@@ -65,34 +65,34 @@
 </script>
 
 <div class="space-y-6">
-  <div class="border-b border-white/5 pb-4 flex items-center justify-between">
+  <div class="border-b border-slate-200 dark:border-white/5 pb-4 flex items-center justify-between">
     <div>
-      <h2 class="text-xl font-bold text-slate-100 flex items-center space-x-2">
-        <span class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+        <span class="w-3 h-3 rounded-full bg-amber-500 animate-ping"></span>
         <span>Antrean Verifikasi Deposit Manual QRIS ({deposits.length})</span>
       </h2>
-      <p class="text-xs text-slate-400 mt-1">Periksa kesesuaian struk bukti transfer dan mutasi bank, lalu setujui untuk mengisi saldo member.</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Periksa kesesuaian struk bukti transfer dan mutasi bank, lalu setujui untuk mengisi saldo member.</p>
     </div>
   </div>
 
   {#if actionFeedback}
-    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
       {actionFeedback}
     </div>
   {/if}
 
   {#if deposits.length === 0}
     <div class="p-12 text-center text-slate-500 admin-card rounded-2xl">
-      <svg class="w-12 h-12 mx-auto text-slate-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-12 h-12 mx-auto text-slate-400 dark:text-slate-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
-      <div class="font-bold text-sm text-slate-400">Tidak ada deposit yang menunggu verifikasi</div>
+      <div class="font-bold text-sm text-slate-700 dark:text-slate-400">Tidak ada deposit yang menunggu verifikasi</div>
       <p class="text-xs mt-1">Semua invoice deposit QRIS telah disetujui atau diproses otomatis.</p>
     </div>
   {:else}
-    <div class="overflow-x-auto admin-card rounded-2xl">
-      <table class="w-full text-left text-xs text-slate-300 min-w-[800px]">
-        <thead class="bg-slate-900/80 text-slate-400 font-semibold border-b border-white/5 uppercase tracking-wider text-[10px]">
+    <div class="overflow-x-auto admin-card rounded-2xl transition-colors">
+      <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300 min-w-[800px]">
+        <thead class="bg-slate-100 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-white/5 uppercase tracking-wider text-[10px]">
           <tr>
             <th class="py-3 px-4">Invoice / Waktu</th>
             <th class="py-3 px-4">Member</th>
@@ -102,27 +102,28 @@
             <th class="py-3 px-4 text-center">Aksi Cepat</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-white/5">
+        <tbody class="divide-y divide-slate-200 dark:divide-white/5">
           {#each deposits as dep}
-            <tr class="hover:bg-white/[0.02] transition-colors">
+            <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
               <td class="py-3.5 px-4 font-mono">
-                <div class="font-bold text-slate-100">#{dep.id}</div>
+                <div class="font-bold text-slate-900 dark:text-slate-100">#{dep.id}</div>
                 <div class="text-[10px] text-slate-500">{dep.created_at}</div>
               </td>
-              <td class="py-3.5 px-4 font-medium text-indigo-400">
+              <td class="py-3.5 px-4 font-medium text-indigo-600 dark:text-indigo-400">
                 @{dep.user_id}
               </td>
               <td class="py-3.5 px-4 font-mono">
-                <div class="font-bold text-emerald-400">{formatRupiah(dep.total_to_pay?.amount || 0)}</div>
-                <div class="text-[10px] text-amber-400">Kode Unik: {dep.unique_code}</div>
+                <div class="font-bold text-emerald-600 dark:text-emerald-400">{formatRupiah(dep.total_to_pay?.amount || 0)}</div>
+                <div class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">Kode Unik: {dep.unique_code}</div>
               </td>
-              <td class="py-3.5 px-4 font-mono font-bold text-slate-200">
+              <td class="py-3.5 px-4 font-mono font-bold text-slate-800 dark:text-slate-200">
                 {formatRupiah(dep.balance_credited?.amount || 0)}
               </td>
               <td class="py-3.5 px-4">
-                <div class="font-semibold text-slate-200 truncate max-w-xs">{dep.sender_name}</div>
+                <div class="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-xs">{dep.sender_name}</div>
                 <button
-                  class="text-[11px] text-indigo-400 hover:text-indigo-300 underline mt-0.5 flex items-center space-x-1"
+                  type="button"
+                  class="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline mt-0.5 flex items-center space-x-1 font-medium"
                   on:click={() => selectedProof = dep.proof_image_url}
                 >
                   <span>Lihat Foto Struk / Bukti</span>
@@ -131,13 +132,15 @@
               <td class="py-3.5 px-4 text-center">
                 <div class="flex items-center justify-center space-x-2">
                   <button
+                    type="button"
                     class="py-1.5 px-3 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all"
                     on:click={() => handleApprove(dep.id)}
                   >
                     Setujui (Approve)
                   </button>
                   <button
-                    class="py-1.5 px-3 rounded-lg text-xs font-bold bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 transition-all"
+                    type="button"
+                    class="py-1.5 px-3 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white border border-rose-200 dark:bg-rose-600/20 dark:hover:bg-rose-600 dark:text-rose-300 dark:hover:text-white dark:border-rose-500/30 transition-all"
                     on:click={() => handleReject(dep.id)}
                   >
                     Tolak
@@ -153,13 +156,25 @@
 
   <!-- Lightbox Modal Bukti Transfer -->
   {#if selectedProof}
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" on:click={() => selectedProof = null}>
-      <div class="relative max-w-lg w-full bg-slate-900 border border-white/10 rounded-2xl p-4 space-y-3" on:click|stopPropagation>
-        <div class="flex items-center justify-between pb-2 border-b border-white/5">
-          <span class="text-xs font-bold text-slate-200">Foto Struk Bukti Transfer Member</span>
-          <button class="text-slate-400 hover:text-white" on:click={() => selectedProof = null}>✕</button>
+    <div
+      role="dialog"
+      aria-modal="true"
+      tabindex="-1"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/90 backdrop-blur-md"
+      on:click={() => selectedProof = null}
+      on:keydown={(e) => e.key === 'Escape' && (selectedProof = null)}
+    >
+      <div
+        role="document"
+        class="relative max-w-lg w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-2xl"
+        on:click|stopPropagation
+        on:keydown|stopPropagation
+      >
+        <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-white/5">
+          <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Foto Struk Bukti Transfer Member</span>
+          <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold p-1" on:click={() => selectedProof = null}>✕</button>
         </div>
-        <img src={selectedProof} alt="Bukti Transfer" class="w-full max-h-[70vh] object-contain rounded-xl border border-white/10 bg-black/40" />
+        <img src={selectedProof} alt="Bukti Transfer" class="w-full max-h-[70vh] object-contain rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-black/40" />
       </div>
     </div>
   {/if}
