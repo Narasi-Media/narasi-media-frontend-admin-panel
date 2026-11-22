@@ -1,8 +1,9 @@
 <script>
   import { onMount } from 'svelte';
   import DepositApprovals from './lib/components/DepositApprovals.svelte';
+  import ServiceManager from './lib/components/ServiceManager.svelte';
 
-  let currentTab = 'deposits';
+  let currentTab = 'services';
   let providerBalance = 'Rp 1.840.000';
   let todayRevenue = 'Rp 4.750.000';
   let isDark = true;
@@ -90,6 +91,13 @@
     <div class="max-w-7xl mx-auto flex space-x-1">
       <button
         type="button"
+        class="px-3 py-1.5 rounded-md text-xs font-medium transition-all {currentTab === 'services' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'}"
+        on:click={() => currentTab = 'services'}
+      >
+        Katalog Layanan (CRUD)
+      </button>
+      <button
+        type="button"
         class="px-3 py-1.5 rounded-md text-xs font-medium transition-all {currentTab === 'deposits' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'}"
         on:click={() => currentTab = 'deposits'}
       >
@@ -102,19 +110,14 @@
       >
         Pesanan Client
       </button>
-      <button
-        type="button"
-        class="px-3 py-1.5 rounded-md text-xs font-medium transition-all {currentTab === 'services' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'}"
-        on:click={() => currentTab = 'services'}
-      >
-        Markup Margin & Provider
-      </button>
     </div>
   </div>
 
   <!-- Main Content -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
-    {#if currentTab === 'deposits'}
+    {#if currentTab === 'services'}
+      <ServiceManager />
+    {:else if currentTab === 'deposits'}
       <DepositApprovals />
     {:else if currentTab === 'orders'}
       <div class="admin-card rounded-xl p-6 space-y-3">
@@ -122,21 +125,6 @@
         <p class="text-xs text-zinc-500 leading-relaxed">Seluruh pesanan yang masuk dari member client akan diteruskan ke provider upstream SMM v2 secara otomatis.</p>
         <div class="p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg text-center text-zinc-400 text-xs font-mono border border-zinc-200 dark:border-zinc-800">
           Antrean sinkronisasi status aktif berjalan via cron daemon setiap 2 menit.
-        </div>
-      </div>
-    {:else if currentTab === 'services'}
-      <div class="admin-card rounded-xl p-6 space-y-4">
-        <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Pengaturan Markup Margin Keuntungan</h3>
-        <p class="text-xs text-zinc-500 leading-relaxed">Atur persentase keuntungan penjualan layanan dari harga modal provider SMM.</p>
-        <div class="max-w-xs space-y-2">
-          <label for="markup-input" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">Global Profit Markup (%)</label>
-          <div class="flex items-center space-x-2">
-            <input id="markup-input" type="number" value="25" class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 font-mono font-bold w-20 focus:outline-none focus:border-zinc-500" />
-            <span class="text-xs text-zinc-500">% Tambahan dari harga modal</span>
-          </div>
-          <button type="button" class="h-8 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 text-xs font-medium mt-2 transition-all shadow-sm">
-            Simpan Perubahan
-          </button>
         </div>
       </div>
     {/if}
