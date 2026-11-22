@@ -44,7 +44,7 @@
       // offline fallback
     }
     deposits = deposits.filter(d => d.id !== depositId);
-    actionFeedback = `✓ Deposit #${depositId} berhasil disetujui! Saldo telah dikreditkan ke user.`;
+    actionFeedback = `Deposit #${depositId} berhasil disetujui. Saldo telah dikreditkan ke user.`;
     setTimeout(() => actionFeedback = '', 4000);
   }
 
@@ -59,88 +59,85 @@
       // offline fallback
     }
     deposits = deposits.filter(d => d.id !== depositId);
-    actionFeedback = `✕ Deposit #${depositId} telah ditolak.`;
+    actionFeedback = `Deposit #${depositId} ditolak.`;
     setTimeout(() => actionFeedback = '', 4000);
   }
 </script>
 
-<div class="space-y-6">
-  <div class="border-b border-slate-200 dark:border-white/5 pb-4 flex items-center justify-between">
+<div class="space-y-4">
+  <div class="border-b border-zinc-200 dark:border-zinc-800 pb-3 flex items-center justify-between">
     <div>
-      <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-        <span class="w-3 h-3 rounded-full bg-amber-500 animate-ping"></span>
-        <span>Antrean Verifikasi Deposit Manual QRIS ({deposits.length})</span>
+      <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 flex items-center space-x-2">
+        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        <span>Antrean Verifikasi Deposit QRIS ({deposits.length})</span>
       </h2>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Periksa kesesuaian struk bukti transfer dan mutasi bank, lalu setujui untuk mengisi saldo member.</p>
+      <p class="text-[11px] text-zinc-500 mt-0.5">Periksa bukti struk dan nominal 3 digit terakhir, lalu setujui untuk mengisi saldo akun klien.</p>
     </div>
   </div>
 
   {#if actionFeedback}
-    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
-      {actionFeedback}
+    <div class="p-3 rounded-lg bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-medium flex items-center justify-between shadow-sm">
+      <span>{actionFeedback}</span>
     </div>
   {/if}
 
   {#if deposits.length === 0}
-    <div class="p-12 text-center text-slate-500 admin-card rounded-2xl">
-      <svg class="w-12 h-12 mx-auto text-slate-400 dark:text-slate-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <div class="font-bold text-sm text-slate-700 dark:text-slate-400">Tidak ada deposit yang menunggu verifikasi</div>
-      <p class="text-xs mt-1">Semua invoice deposit QRIS telah disetujui atau diproses otomatis.</p>
+    <div class="p-10 text-center text-zinc-400 admin-card rounded-xl">
+      <div class="font-medium text-xs text-zinc-600 dark:text-zinc-400">Tidak ada antrean deposit yang pending</div>
+      <p class="text-[11px] mt-0.5">Semua invoice deposit manual QRIS telah disetujui.</p>
     </div>
   {:else}
-    <div class="overflow-x-auto admin-card rounded-2xl transition-colors">
-      <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300 min-w-[800px]">
-        <thead class="bg-slate-100 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-white/5 uppercase tracking-wider text-[10px]">
+    <div class="overflow-x-auto admin-card rounded-xl">
+      <table class="w-full text-left text-xs text-zinc-600 dark:text-zinc-300 min-w-[780px]">
+        <thead class="bg-zinc-50 dark:bg-zinc-900/60 text-zinc-500 dark:text-zinc-400 font-medium border-b border-zinc-200 dark:border-zinc-800 text-[11px]">
           <tr>
-            <th class="py-3 px-4">Invoice / Waktu</th>
-            <th class="py-3 px-4">Member</th>
-            <th class="py-3 px-4">Nominal Ditagih</th>
-            <th class="py-3 px-4">Saldo Dikreditkan</th>
-            <th class="py-3 px-4">Pengirim & Struk</th>
-            <th class="py-3 px-4 text-center">Aksi Cepat</th>
+            <th class="py-2.5 px-4">Invoice & Waktu</th>
+            <th class="py-2.5 px-4">Member</th>
+            <th class="py-2.5 px-4">Nominal Tagihan</th>
+            <th class="py-2.5 px-4">Saldo Masuk</th>
+            <th class="py-2.5 px-4">Pengirim & Struk</th>
+            <th class="py-2.5 px-4 text-center">Aksi Verifikasi</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-white/5">
+        <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800/80">
           {#each deposits as dep}
-            <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
-              <td class="py-3.5 px-4 font-mono">
-                <div class="font-bold text-slate-900 dark:text-slate-100">#{dep.id}</div>
-                <div class="text-[10px] text-slate-500">{dep.created_at}</div>
+            <tr class="hover:bg-zinc-50/60 dark:hover:bg-zinc-900/40 transition-colors">
+              <td class="py-3 px-4 font-mono">
+                <div class="font-medium text-zinc-900 dark:text-zinc-100">#{dep.id}</div>
+                <div class="text-[10px] text-zinc-400">{dep.created_at}</div>
               </td>
-              <td class="py-3.5 px-4 font-medium text-indigo-600 dark:text-indigo-400">
+              <td class="py-3 px-4 font-mono text-zinc-900 dark:text-zinc-200">
                 @{dep.user_id}
               </td>
-              <td class="py-3.5 px-4 font-mono">
-                <div class="font-bold text-emerald-600 dark:text-emerald-400">{formatRupiah(dep.total_to_pay?.amount || 0)}</div>
-                <div class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">Kode Unik: {dep.unique_code}</div>
+              <td class="py-3 px-4 font-mono">
+                <div class="font-semibold text-zinc-900 dark:text-zinc-100">{formatRupiah(dep.total_to_pay?.amount || 0)}</div>
+                <div class="text-[10px] text-zinc-500">Kode Unik: {dep.unique_code}</div>
               </td>
-              <td class="py-3.5 px-4 font-mono font-bold text-slate-800 dark:text-slate-200">
+              <td class="py-3 px-4 font-mono font-medium text-emerald-600 dark:text-emerald-400">
                 {formatRupiah(dep.balance_credited?.amount || 0)}
               </td>
-              <td class="py-3.5 px-4">
-                <div class="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-xs">{dep.sender_name}</div>
+              <td class="py-3 px-4">
+                <div class="font-medium text-zinc-800 dark:text-zinc-200 truncate max-w-xs">{dep.sender_name}</div>
                 <button
                   type="button"
-                  class="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline mt-0.5 flex items-center space-x-1 font-medium"
+                  class="text-[11px] text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 underline mt-0.5 flex items-center space-x-1"
                   on:click={() => selectedProof = dep.proof_image_url}
                 >
-                  <span>Lihat Foto Struk / Bukti</span>
+                  <span>Lihat Foto Struk</span>
                 </button>
               </td>
-              <td class="py-3.5 px-4 text-center">
-                <div class="flex items-center justify-center space-x-2">
+              <td class="py-3 px-4 text-center">
+                <div class="flex items-center justify-center space-x-1.5">
                   <button
                     type="button"
-                    class="py-1.5 px-3 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all"
+                    class="h-7 px-3 rounded text-xs font-medium bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 transition-all shadow-sm"
                     on:click={() => handleApprove(dep.id)}
                   >
-                    Setujui (Approve)
+                    Setujui
                   </button>
                   <button
                     type="button"
-                    class="py-1.5 px-3 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white border border-rose-200 dark:bg-rose-600/20 dark:hover:bg-rose-600 dark:text-rose-300 dark:hover:text-white dark:border-rose-500/30 transition-all"
+                    class="h-7 px-3 rounded text-xs font-medium border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition-all"
                     on:click={() => handleReject(dep.id)}
                   >
                     Tolak
@@ -160,21 +157,21 @@
       role="dialog"
       aria-modal="true"
       tabindex="-1"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 dark:bg-black/90 backdrop-blur-md"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm"
       on:click={() => selectedProof = null}
       on:keydown={(e) => e.key === 'Escape' && (selectedProof = null)}
     >
       <div
         role="document"
-        class="relative max-w-lg w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-2xl"
+        class="relative max-w-sm w-full bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-3 shadow-2xl"
         on:click|stopPropagation
         on:keydown|stopPropagation
       >
-        <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-white/5">
-          <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Foto Struk Bukti Transfer Member</span>
-          <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold p-1" on:click={() => selectedProof = null}>✕</button>
+        <div class="flex items-center justify-between pb-2 border-b border-zinc-200 dark:border-zinc-800 text-xs">
+          <span class="font-medium text-zinc-900 dark:text-zinc-100">Struk Pembayaran Member</span>
+          <button type="button" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-white" on:click={() => selectedProof = null}>✕</button>
         </div>
-        <img src={selectedProof} alt="Bukti Transfer" class="w-full max-h-[70vh] object-contain rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-black/40" />
+        <img src={selectedProof} alt="Bukti Transfer" class="w-full max-h-[60vh] object-contain rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black/40" />
       </div>
     </div>
   {/if}

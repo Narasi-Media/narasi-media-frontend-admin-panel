@@ -8,14 +8,23 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Outfit', 'sans-serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
-        admin: {
-          bg: '#0F172A',
-          card: '#1E293B',
-          accent: '#6366F1',
+        zinc: {
+          950: '#09090b',
+          900: '#18181b',
+          850: '#1f1f23',
+          800: '#27272a',
+          700: '#3f3f46',
+          600: '#52525b',
+          500: '#71717a',
+          400: '#a1a1aa',
+          300: '#d4d4d8',
+          200: '#e4e4e7',
+          100: '#f4f4f5',
+          50: '#fafafa',
         }
       }
     },
