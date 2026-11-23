@@ -6,8 +6,17 @@
   import OrderManager from './lib/components/OrderManager.svelte';
   import DepositApprovals from './lib/components/DepositApprovals.svelte';
   import WebProfileSettings from './lib/components/WebProfileSettings.svelte';
+  import RbacManager from './lib/components/RbacManager.svelte';
+  import {
+    rolesStore,
+    activeRoleStore,
+    currentRole,
+    currentPermissions,
+    canAccessTab,
+    rbacActions
+  } from './lib/stores/rbacStore';
 
-  let currentTab = 'services';
+  let currentTab = 'overview';
   let selectedCategoryForServices = 'all';
   let providerBalance = 'Rp 1.840.000';
   let todayRevenue = 'Rp 4.750.000';
@@ -105,6 +114,8 @@
         return 'Verifikasi Deposit QRIS';
       case 'profile':
         return 'Pengaturan Company Profile & Web';
+      case 'rbac':
+        return 'Manajemen Role & Hak Akses (RBAC)';
       default:
         return 'Control Center';
     }
@@ -147,8 +158,25 @@
       </div>
     </div>
 
-    <!-- Right Controls: Provider Balance, Omset, Theme, User Profile -->
-    <div class="flex items-center space-x-3 sm:space-x-4 text-xs">
+    <!-- Right Controls: Active Role Switcher, Balance, Revenue, Theme, Avatar -->
+    <div class="flex items-center space-x-2.5 sm:space-x-3 text-xs">
+      <!-- Role Switcher & Simulator -->
+      <div class="flex items-center space-x-1.5 px-2 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700">
+        <span class="text-[10px] text-zinc-400 font-mono hidden md:inline">Role:</span>
+        <select
+          value={$activeRoleStore}
+          on:change={(e) => rbacActions.setActiveRole(e.target.value)}
+          class="bg-transparent text-[11px] font-bold text-zinc-900 dark:text-zinc-100 focus:outline-none cursor-pointer"
+          title="Ganti role aktif untuk simulasi hak akses RBAC secara live"
+        >
+          {#each $rolesStore as r}
+            <option value={r.id} class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
+              {r.name}
+            </option>
+          {/each}
+        </select>
+      </div>
+
       <div class="text-right hidden sm:block">
         <div class="text-[9px] text-zinc-400 uppercase tracking-wider font-semibold font-mono">Saldo Provider</div>
         <div class="font-bold text-zinc-900 dark:text-zinc-100 font-mono text-[11px]">{providerBalance}</div>
@@ -185,15 +213,15 @@
       </button>
 
       <!-- Admin Avatar -->
-      <div class="w-7 h-7 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-mono text-[10px] font-bold flex items-center justify-center border border-zinc-300 dark:border-zinc-700">
-        ADM
+      <div class="w-7 h-7 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-mono text-[10px] font-bold flex items-center justify-center border border-zinc-300 dark:border-zinc-700" title={$currentRole.name}>
+        {$currentRole.slug === 'superadmin' ? 'SA' : 'AD'}
       </div>
     </div>
   </header>
 
   <!-- Body Container: Sidebar + Content -->
   <div class="flex-1 flex overflow-hidden relative">
-    <!-- RESIZABLE SIDEBAR -->
+    <!-- RESIZABLE & PERMISSION-FILTERED SIDEBAR -->
     <aside
       style="width: {sidebarWidth}px;"
       class="flex-shrink-0 bg-zinc-50/90 dark:bg-[#0c0c0e] border-r border-zinc-200 dark:border-zinc-800 flex flex-col justify-between select-none relative transition-colors"
@@ -201,179 +229,226 @@
       <!-- Navigation Items Container -->
       <div class="p-2.5 space-y-4 overflow-y-auto flex-1">
         <!-- GROUP 1: RINGKASAN & OVERVIEW -->
-        <div class="space-y-1">
-          {#if !isCollapsed}
-            <div class="px-2 text-[10px] font-mono uppercase font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider">
-              Ringkasan
-            </div>
-          {/if}
-          <button
-            type="button"
-            on:click={() => currentTab = 'overview'}
-            class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'space-x-2.5 px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'overview' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
-            title="Dashboard Overview"
-          >
-            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="7" height="7"></rect>
-              <rect x="14" y="3" width="7" height="7"></rect>
-              <rect x="14" y="14" width="7" height="7"></rect>
-              <rect x="3" y="14" width="7" height="7"></rect>
-            </svg>
+        {#if canAccessTab('overview', $currentPermissions)}
+          <div class="space-y-1">
             {#if !isCollapsed}
-              <span class="truncate">Dashboard Overview</span>
+              <div class="px-2 text-[10px] font-mono uppercase font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider">
+                Ringkasan
+              </div>
             {/if}
-          </button>
-        </div>
+            <button
+              type="button"
+              on:click={() => currentTab = 'overview'}
+              class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'space-x-2.5 px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'overview' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
+              title="Dashboard Overview"
+            >
+              <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              {#if !isCollapsed}
+                <span class="truncate">Dashboard Overview</span>
+              {/if}
+            </button>
+          </div>
+        {/if}
 
         <!-- GROUP 2: KATALOG & PRODUK -->
-        <div class="space-y-1">
-          {#if !isCollapsed}
-            <div class="px-2 text-[10px] font-mono uppercase font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider">
-              Katalog & Produk
-            </div>
-          {/if}
-
-          <!-- 1. Katalog Kategori -->
-          <button
-            type="button"
-            on:click={() => currentTab = 'categories'}
-            class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'categories' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
-            title="Katalog Kategori Layanan"
-          >
-            <div class="flex items-center space-x-2.5 truncate">
-              <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-              </svg>
-              {#if !isCollapsed}
-                <span class="truncate">Katalog Kategori</span>
-              {/if}
-            </div>
+        {#if canAccessTab('categories', $currentPermissions) || canAccessTab('services', $currentPermissions)}
+          <div class="space-y-1">
             {#if !isCollapsed}
-              <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-700 dark:text-blue-300 font-semibold border border-blue-500/20">
-                Kategori
-              </span>
+              <div class="px-2 text-[10px] font-mono uppercase font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider">
+                Katalog & Produk
+              </div>
             {/if}
-          </button>
 
-          <!-- 2. Katalog Layanan -->
-          <button
-            type="button"
-            on:click={() => currentTab = 'services'}
-            class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'services' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
-            title="Katalog Layanan & Produk"
-          >
-            <div class="flex items-center space-x-2.5 truncate">
-              <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                <line x1="12" y1="22.08" x2="12" y2="12"></line>
-              </svg>
-              {#if !isCollapsed}
-                <span class="truncate">Katalog Layanan</span>
-              {/if}
-            </div>
-            {#if !isCollapsed}
-              <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-200/60 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-semibold">
-                Live
-              </span>
+            <!-- 1. Katalog Kategori -->
+            {#if canAccessTab('categories', $currentPermissions)}
+              <button
+                type="button"
+                on:click={() => currentTab = 'categories'}
+                class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'categories' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
+                title="Katalog Kategori Layanan"
+              >
+                <div class="flex items-center space-x-2.5 truncate">
+                  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  {#if !isCollapsed}
+                    <span class="truncate">Katalog Kategori</span>
+                  {/if}
+                </div>
+                {#if !isCollapsed}
+                  <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-700 dark:text-blue-300 font-semibold border border-blue-500/20">
+                    Kategori
+                  </span>
+                {/if}
+              </button>
             {/if}
-          </button>
-        </div>
+
+            <!-- 2. Katalog Layanan -->
+            {#if canAccessTab('services', $currentPermissions)}
+              <button
+                type="button"
+                on:click={() => currentTab = 'services'}
+                class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'services' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
+                title="Katalog Layanan & Produk"
+              >
+                <div class="flex items-center space-x-2.5 truncate">
+                  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                  </svg>
+                  {#if !isCollapsed}
+                    <span class="truncate">Katalog Layanan</span>
+                  {/if}
+                </div>
+                {#if !isCollapsed}
+                  <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-200/60 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-semibold">
+                    Live
+                  </span>
+                {/if}
+              </button>
+            {/if}
+          </div>
+        {/if}
 
         <!-- GROUP 3: OPERASIONAL & TRANSAKSI -->
-        <div class="space-y-1">
-          {#if !isCollapsed}
-            <div class="px-2 text-[10px] font-mono uppercase font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider">
-              Operasional
-            </div>
-          {/if}
-
-          <!-- Verifikasi Deposit QRIS -->
-          <button
-            type="button"
-            on:click={() => currentTab = 'deposits'}
-            class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'deposits' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
-            title="Verifikasi Deposit QRIS"
-          >
-            <div class="flex items-center space-x-2.5 truncate">
-              <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                <line x1="1" y1="10" x2="23" y2="10"></line>
-              </svg>
-              {#if !isCollapsed}
-                <span class="truncate">Verifikasi QRIS</span>
-              {/if}
-            </div>
+        {#if canAccessTab('deposits', $currentPermissions) || canAccessTab('orders', $currentPermissions)}
+          <div class="space-y-1">
             {#if !isCollapsed}
-              <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-400 font-bold border border-amber-500/30">
-                2
-              </span>
+              <div class="px-2 text-[10px] font-mono uppercase font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider">
+                Operasional
+              </div>
             {/if}
-          </button>
 
-          <!-- Pesanan Pelanggan -->
-          <button
-            type="button"
-            on:click={() => currentTab = 'orders'}
-            class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'orders' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
-            title="Pesanan Pelanggan"
-          >
-            <div class="flex items-center space-x-2.5 truncate">
-              <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <path d="M16 10a4 4 0 0 1-8 0"></path>
-              </svg>
-              {#if !isCollapsed}
-                <span class="truncate">Pesanan Pelanggan</span>
-              {/if}
-            </div>
-            {#if !isCollapsed}
-              <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 font-medium">
-                Aktif
-              </span>
+            <!-- Verifikasi Deposit QRIS -->
+            {#if canAccessTab('deposits', $currentPermissions)}
+              <button
+                type="button"
+                on:click={() => currentTab = 'deposits'}
+                class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'deposits' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
+                title="Verifikasi Deposit QRIS"
+              >
+                <div class="flex items-center space-x-2.5 truncate">
+                  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                  </svg>
+                  {#if !isCollapsed}
+                    <span class="truncate">Verifikasi QRIS</span>
+                  {/if}
+                </div>
+                {#if !isCollapsed}
+                  <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-400 font-bold border border-amber-500/30">
+                    2
+                  </span>
+                {/if}
+              </button>
             {/if}
-          </button>
-        </div>
+
+            <!-- Pesanan Pelanggan -->
+            {#if canAccessTab('orders', $currentPermissions)}
+              <button
+                type="button"
+                on:click={() => currentTab = 'orders'}
+                class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'orders' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
+                title="Pesanan Pelanggan"
+              >
+                <div class="flex items-center space-x-2.5 truncate">
+                  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                  </svg>
+                  {#if !isCollapsed}
+                    <span class="truncate">Pesanan Pelanggan</span>
+                  {/if}
+                </div>
+                {#if !isCollapsed}
+                  <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 font-medium">
+                    Aktif
+                  </span>
+                {/if}
+              </button>
+            {/if}
+          </div>
+        {/if}
 
         <!-- GROUP 4: SISTEM & WEB -->
-        <div class="space-y-1">
-          {#if !isCollapsed}
-            <div class="px-2 text-[10px] font-mono uppercase font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider">
-              Sistem & Web
-            </div>
-          {/if}
-          <button
-            type="button"
-            on:click={() => currentTab = 'profile'}
-            class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'space-x-2.5 px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'profile' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
-            title="Company Profile & Web Settings"
-          >
-            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="2" y1="12" x2="22" y2="12"></line>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-            </svg>
+        {#if canAccessTab('profile', $currentPermissions)}
+          <div class="space-y-1">
             {#if !isCollapsed}
-              <span class="truncate">Company Profile</span>
+              <div class="px-2 text-[10px] font-mono uppercase font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider">
+                Sistem & Web
+              </div>
             {/if}
-          </button>
-        </div>
+            <button
+              type="button"
+              on:click={() => currentTab = 'profile'}
+              class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'space-x-2.5 px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'profile' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
+              title="Company Profile & Web Settings"
+            >
+              <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              {#if !isCollapsed}
+                <span class="truncate">Company Profile</span>
+              {/if}
+            </button>
+          </div>
+        {/if}
+
+        <!-- GROUP 5: ROLE & RBAC (KHUSUS SIDEBAR) -->
+        {#if canAccessTab('rbac', $currentPermissions)}
+          <div class="space-y-1">
+            {#if !isCollapsed}
+              <div class="px-2 text-[10px] font-mono uppercase font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider">
+                Akses & Keamanan
+              </div>
+            {/if}
+            <button
+              type="button"
+              on:click={() => currentTab = 'rbac'}
+              class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'rbac' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
+              title="Role & Hak Akses (RBAC)"
+            >
+              <div class="flex items-center space-x-2.5 truncate">
+                <svg class="w-4 h-4 flex-shrink-0 text-violet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                {#if !isCollapsed}
+                  <span class="truncate">Role & RBAC</span>
+                {/if}
+              </div>
+              {#if !isCollapsed}
+                <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-violet-500/10 text-violet-700 dark:text-violet-300 font-bold border border-violet-500/20">
+                  RBAC
+                </span>
+              {/if}
+            </button>
+          </div>
+        {/if}
       </div>
 
-      <!-- Bottom Sidebar Footer: Server Health & Width Indicator -->
+      <!-- Bottom Sidebar Footer: Current Role & Width Indicator -->
       <div class="p-3 border-t border-zinc-200 dark:border-zinc-800 text-[10px] text-zinc-400 font-mono flex items-center justify-between">
         {#if !isCollapsed}
-          <div class="flex items-center space-x-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            <span>Sistem Normal</span>
+          <div class="flex items-center space-x-1.5 truncate">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
+            <span class="truncate text-[10px] text-zinc-600 dark:text-zinc-400">{$currentRole.name}</span>
           </div>
-          <span class="text-[9px] text-zinc-400" title="Geser garis tepi kanan untuk ubah lebar">
+          <span class="text-[9px] text-zinc-400 flex-shrink-0" title="Geser garis tepi kanan untuk ubah lebar">
             {sidebarWidth}px
           </span>
         {:else}
           <div class="w-full flex justify-center">
-            <span class="w-2 h-2 rounded-full bg-emerald-500" title="Sistem Normal"></span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500" title={$currentRole.name}></span>
           </div>
         {/if}
       </div>
@@ -393,7 +468,31 @@
     <!-- MAIN SCROLLABLE CONTENT VIEW -->
     <main class="flex-1 overflow-y-auto px-6 lg:px-8 py-6">
       <div class="max-w-7xl mx-auto">
-        {#if currentTab === 'overview'}
+        <!-- RBAC Permission Guard -->
+        {#if !canAccessTab(currentTab, $currentPermissions)}
+          <div class="p-12 text-center max-w-md mx-auto space-y-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm my-12">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center text-2xl font-bold">
+              🚫
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                Akses Dibatasi (403 Forbidden)
+              </h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                Role Anda saat ini (<strong class="text-zinc-900 dark:text-zinc-100 font-semibold">{$currentRole.name}</strong>) tidak memiliki izin untuk melihat modul <strong>{getTabTitle(currentTab)}</strong>.
+              </p>
+            </div>
+            <div class="pt-2 flex justify-center space-x-2">
+              <button
+                type="button"
+                on:click={() => (currentTab = canAccessTab('overview', $currentPermissions) ? 'overview' : 'rbac')}
+                class="px-4 py-2 rounded-lg bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-semibold hover:bg-zinc-800 dark:hover:bg-white transition-all shadow-sm"
+              >
+                Kembali ke Modul Tersedia
+              </button>
+            </div>
+          </div>
+        {:else if currentTab === 'overview'}
           <AdminOverview on:navigate={(e) => currentTab = e.detail} {providerBalance} {todayRevenue} />
         {:else if currentTab === 'categories'}
           <CategoryManager on:navigate={handleCategoryNavigate} />
@@ -405,6 +504,8 @@
           <DepositApprovals />
         {:else if currentTab === 'profile'}
           <WebProfileSettings />
+        {:else if currentTab === 'rbac'}
+          <RbacManager />
         {/if}
       </div>
     </main>
