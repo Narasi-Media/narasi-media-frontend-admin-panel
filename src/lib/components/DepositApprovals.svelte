@@ -39,27 +39,35 @@
 
   async function handleApprove(depositId) {
     try {
-      await fetch(`/api/admin/deposits/${depositId}/approve`, { method: 'POST' });
+      const res = await fetch(`/api/admin/deposits/${depositId}/approve`, { method: 'POST' });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || json.error || `HTTP ${res.status}: Gagal memproses persetujuan`);
+      }
+      deposits = deposits.filter(d => d.id !== depositId);
+      actionFeedback = `Deposit #${depositId} berhasil disetujui. Saldo telah dikreditkan ke user.`;
     } catch (e) {
-      // offline fallback
+      actionFeedback = `Gagal menyetujui deposit #${depositId}: ${e.message}`;
     }
-    deposits = deposits.filter(d => d.id !== depositId);
-    actionFeedback = `Deposit #${depositId} berhasil disetujui. Saldo telah dikreditkan ke user.`;
     setTimeout(() => actionFeedback = '', 4000);
   }
 
   async function handleReject(depositId) {
     try {
-      await fetch(`/api/admin/deposits/${depositId}/reject`, {
+      const res = await fetch(`/api/admin/deposits/${depositId}/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: 'Bukti transfer tidak valid atau dana belum masuk mutasi' })
       });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || json.error || `HTTP ${res.status}: Gagal memproses penolakan`);
+      }
+      deposits = deposits.filter(d => d.id !== depositId);
+      actionFeedback = `Deposit #${depositId} telah ditolak.`;
     } catch (e) {
-      // offline fallback
+      actionFeedback = `Gagal menolak deposit #${depositId}: ${e.message}`;
     }
-    deposits = deposits.filter(d => d.id !== depositId);
-    actionFeedback = `Deposit #${depositId} ditolak.`;
     setTimeout(() => actionFeedback = '', 4000);
   }
 </script>
