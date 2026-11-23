@@ -33,6 +33,18 @@
   let selectedProof = null;
   let actionFeedback = '';
 
+  onMount(async () => {
+    try {
+      const res = await fetch('/api/admin/deposits');
+      const json = await res.json().catch(() => ({}));
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        deposits = json.data;
+      }
+    } catch (e) {
+      // Keep initial fallback deposits
+    }
+  });
+
   function formatRupiah(num) {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   }
