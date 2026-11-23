@@ -6,6 +6,7 @@
   export let providerBalance = 'Rp 1.840.000';
   export let todayRevenue = 'Rp 4.750.000';
 
+  let totalCategories = 4;
   let totalServices = 4;
   let pendingDeposits = 2;
   let processingOrders = 1;
@@ -13,10 +14,12 @@
 
   onMount(async () => {
     try {
-      const [srvRes, ordRes] = await Promise.all([
+      const [srvRes, ordRes, catRes] = await Promise.all([
         fetch('/api/services').then(r => r.json()),
-        fetch('/api/admin/orders').then(r => r.json())
+        fetch('/api/admin/orders').then(r => r.json()),
+        fetch('/api/categories').then(r => r.json())
       ]);
+      if (catRes.success) totalCategories = catRes.data?.length || 4;
       if (srvRes.success) totalServices = srvRes.data?.length || 4;
       if (ordRes.success) {
         const allOrders = ordRes.data || [];
@@ -136,17 +139,37 @@
     </button>
   </div>
 
-  <!-- Quick Shortcut Cards (Grid 3 Column) -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <!-- CRUD Katalog Layanan -->
+  <!-- Quick Shortcut Cards (Grid 4 Column) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- 1. Katalog Kategori -->
+    <div class="admin-card rounded-xl p-5 space-y-3 flex flex-col justify-between">
+      <div class="space-y-1.5">
+        <div class="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs">
+          📁
+        </div>
+        <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Katalog Kategori</h3>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+          Buat dan kelompokkan kategori platform (Instagram, TikTok, Marketplace) agar produk tertata rapi.
+        </p>
+      </div>
+      <button
+        type="button"
+        on:click={() => navigateTo('categories')}
+        class="w-full py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-all text-center mt-2"
+      >
+        Kelola Kategori ({totalCategories}) →
+      </button>
+    </div>
+
+    <!-- 2. Katalog Layanan -->
     <div class="admin-card rounded-xl p-5 space-y-3 flex flex-col justify-between">
       <div class="space-y-1.5">
         <div class="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs">
           📦
         </div>
-        <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Katalog & Produk Layanan</h3>
+        <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Katalog Layanan</h3>
         <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-          Tambah layanan baru, duplikasi produk, atur harga modal dan jual, atau atur margin keuntungan secara massal.
+          Tambah layanan baru, pilih kategori via dropdown, serta atur margin keuntungan secara otomatis.
         </p>
       </div>
       <button
@@ -154,17 +177,17 @@
         on:click={() => navigateTo('services')}
         class="w-full py-2 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 text-xs font-semibold shadow-sm transition-all text-center mt-2"
       >
-        Kelola Katalog Layanan ({totalServices}) →
+        Kelola Layanan ({totalServices}) →
       </button>
     </div>
 
-    <!-- Verifikasi QRIS Manual -->
+    <!-- 3. Verifikasi QRIS Manual -->
     <div class="admin-card rounded-xl p-5 space-y-3 flex flex-col justify-between">
       <div class="space-y-1.5">
-        <div class="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs">
+        <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs">
           💳
         </div>
-        <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Verifikasi Deposit QRIS</h3>
+        <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Verifikasi Deposit</h3>
         <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
           Tinjau bukti transfer m-Banking / QRIS pengguna dengan lightbox screenshot dan 1-click approve.
         </p>
@@ -174,19 +197,19 @@
         on:click={() => navigateTo('deposits')}
         class="w-full py-2 px-3 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-sm transition-all text-center mt-2"
       >
-        Tinjau 2 Antrean Deposit →
+        Tinjau {pendingDeposits} Deposit →
       </button>
     </div>
 
-    <!-- Company Profile & Web Settings -->
+    <!-- 4. Company Profile & Web Settings -->
     <div class="admin-card rounded-xl p-5 space-y-3 flex flex-col justify-between">
       <div class="space-y-1.5">
         <div class="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs">
           🌐
         </div>
-        <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Company Profile & Landing Page</h3>
+        <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Company Profile</h3>
         <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-          Kelola profil legalitas PT Buzzer Media Solusindo, nomor kontak WhatsApp CS 24 Jam, dan promo banner.
+          Kelola profil legalitas PT Narasi Media Solusindo, kontak WhatsApp CS 24 Jam, dan promo banner.
         </p>
       </div>
       <button
@@ -194,7 +217,7 @@
         on:click={() => navigateTo('profile')}
         class="w-full py-2 px-3 rounded-lg bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs font-semibold shadow-sm transition-all text-center mt-2"
       >
-        Atur Profil Website →
+        Atur Profil Web →
       </button>
     </div>
   </div>

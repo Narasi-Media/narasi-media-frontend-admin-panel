@@ -9,7 +9,7 @@
 
   // Filter & Search
   let searchQuery = '';
-  let selectedCategoryFilter = 'all';
+  export let selectedCategoryFilter = 'all';
   let statusFilter = 'all'; // 'all', 'active', 'inactive'
 
   // Service Modal (Create & Edit)
@@ -73,7 +73,7 @@
         serviceForm.category_id = categories[0].id;
       }
     } catch (e) {
-      errorMessage = 'Gagal memuat data dari backend: ' + e.message;
+      errorMessage = 'Gagal memuat data layanan: ' + e.message;
     } finally {
       loading = false;
     }
@@ -351,8 +351,10 @@
       const json = await res.json();
       if (json.success) {
         categories = [...categories, json.data];
+        serviceForm.category_id = json.data.id;
         newCategoryName = '';
-        setFeedback(`Kategori "${json.data.name}" berhasil dibuat.`);
+        setFeedback(`Kategori "${json.data.name}" berhasil dibuat dan otomatis dipilih.`);
+        showCategoryModal = false;
       } else {
         alert('Gagal membuat kategori: ' + json.message);
       }
@@ -394,7 +396,7 @@
       <div class="flex items-center space-x-2">
         <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
         <h2 class="text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
-          Katalog Layanan & Produk (CRUD)
+          Katalog Layanan & Produk
         </h2>
       </div>
       <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
@@ -696,18 +698,34 @@
               />
             </div>
             <div>
-              <label for="form-category" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                Kategori Platform
-              </label>
+              <div class="flex items-center justify-between mb-1">
+                <label for="form-category" class="font-semibold text-zinc-700 dark:text-zinc-300">
+                  Kategori Platform *
+                </label>
+                <button
+                  type="button"
+                  on:click={() => (showCategoryModal = true)}
+                  class="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-medium inline-flex items-center space-x-1"
+                >
+                  <span>+ Kategori Baru</span>
+                </button>
+              </div>
               <select
                 id="form-category"
                 bind:value={serviceForm.category_id}
-                class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-zinc-500"
+                required
+                class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:border-zinc-500 shadow-sm"
               >
+                <option value="" disabled>-- Pilih Kategori Layanan --</option>
                 {#each categories as cat}
-                  <option value={cat.id}>{cat.name}</option>
+                  <option value={cat.id}>
+                    📁 {cat.name} ({cat.id})
+                  </option>
                 {/each}
               </select>
+              <p class="text-[10px] text-zinc-400 mt-1">
+                Layanan akan otomatis dikelompokkan ke dalam kategori ini pada katalog pengguna.
+              </p>
             </div>
           </div>
 

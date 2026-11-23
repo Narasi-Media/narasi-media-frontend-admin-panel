@@ -1,11 +1,11 @@
 <script>
   import { onMount } from 'svelte';
 
-  let companyName = 'PT Buzzer Media Solusindo';
-  let tagline = 'Infrastruktur Buzzer & Optimasi Media Sosial Terdepan di Indonesia';
+  let companyName = 'PT Narasi Media Solusindo';
+  let tagline = 'Infrastruktur Narasi & Optimasi Media Sosial Terdepan di Indonesia';
   let announcement = 'Bonus Saldo +10% untuk setiap deposit via QRIS Otomatis & Manual!';
   let whatsappNumber = '081234567890';
-  let telegramLink = 'https://t.me/buzzermedia_official';
+  let telegramLink = 'https://t.me/narasimedia_official';
   let address = 'Jl. Sudirman Central Business District (SCBD), Jakarta Selatan 12190';
   let operatingHours = '24 Jam Nonstop (Senin - Minggu)';
   let maintenanceMode = false;

@@ -1,12 +1,14 @@
 <script>
   import { onMount } from 'svelte';
   import AdminOverview from './lib/components/AdminOverview.svelte';
+  import CategoryManager from './lib/components/CategoryManager.svelte';
   import ServiceManager from './lib/components/ServiceManager.svelte';
   import OrderManager from './lib/components/OrderManager.svelte';
   import DepositApprovals from './lib/components/DepositApprovals.svelte';
   import WebProfileSettings from './lib/components/WebProfileSettings.svelte';
 
   let currentTab = 'services';
+  let selectedCategoryForServices = 'all';
   let providerBalance = 'Rp 1.840.000';
   let todayRevenue = 'Rp 4.750.000';
   let isDark = true;
@@ -78,15 +80,27 @@
     }
   }
 
+  // Category to Service navigation
+  function handleCategoryNavigate(e) {
+    if (e.detail?.tab === 'services') {
+      if (e.detail.categoryId) {
+        selectedCategoryForServices = e.detail.categoryId;
+      }
+      currentTab = 'services';
+    }
+  }
+
   // Tab Breadcrumb Label Mapping
   function getTabTitle(tab) {
     switch (tab) {
       case 'overview':
         return 'Executive Overview';
+      case 'categories':
+        return 'Katalog Kategori Layanan';
       case 'services':
-        return 'Katalog Layanan & Produk (CRUD)';
+        return 'Katalog Layanan & Produk';
       case 'orders':
-        return 'Pesanan Client (CRUD)';
+        return 'Pesanan Pelanggan';
       case 'deposits':
         return 'Verifikasi Deposit QRIS';
       case 'profile':
@@ -119,10 +133,10 @@
       <!-- Logo & Breadcrumb -->
       <div class="flex items-center space-x-2 text-xs">
         <div class="w-6 h-6 rounded bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center font-mono font-bold text-[11px] shadow-sm">
-          BM
+          NM
         </div>
         <span class="font-semibold text-zinc-900 dark:text-zinc-100">
-          buzzer.media
+          narasi.media
         </span>
         <span class="text-zinc-400">/</span>
         <span class="text-zinc-400">admin</span>
@@ -218,11 +232,35 @@
               Katalog & Produk
             </div>
           {/if}
+
+          <!-- 1. Katalog Kategori -->
+          <button
+            type="button"
+            on:click={() => currentTab = 'categories'}
+            class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'categories' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
+            title="Katalog Kategori Layanan"
+          >
+            <div class="flex items-center space-x-2.5 truncate">
+              <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              </svg>
+              {#if !isCollapsed}
+                <span class="truncate">Katalog Kategori</span>
+              {/if}
+            </div>
+            {#if !isCollapsed}
+              <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-700 dark:text-blue-300 font-semibold border border-blue-500/20">
+                Kategori
+              </span>
+            {/if}
+          </button>
+
+          <!-- 2. Katalog Layanan -->
           <button
             type="button"
             on:click={() => currentTab = 'services'}
             class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'services' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
-            title="Katalog Layanan (CRUD)"
+            title="Katalog Layanan & Produk"
           >
             <div class="flex items-center space-x-2.5 truncate">
               <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -231,7 +269,7 @@
                 <line x1="12" y1="22.08" x2="12" y2="12"></line>
               </svg>
               {#if !isCollapsed}
-                <span class="truncate">Layanan (CRUD)</span>
+                <span class="truncate">Katalog Layanan</span>
               {/if}
             </div>
             {#if !isCollapsed}
@@ -273,12 +311,12 @@
             {/if}
           </button>
 
-          <!-- Pesanan Client (CRUD) -->
+          <!-- Pesanan Pelanggan -->
           <button
             type="button"
             on:click={() => currentTab = 'orders'}
             class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'orders' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
-            title="Pesanan Client (CRUD)"
+            title="Pesanan Pelanggan"
           >
             <div class="flex items-center space-x-2.5 truncate">
               <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -287,7 +325,7 @@
                 <path d="M16 10a4 4 0 0 1-8 0"></path>
               </svg>
               {#if !isCollapsed}
-                <span class="truncate">Pesanan Client</span>
+                <span class="truncate">Pesanan Pelanggan</span>
               {/if}
             </div>
             {#if !isCollapsed}
@@ -357,8 +395,10 @@
       <div class="max-w-7xl mx-auto">
         {#if currentTab === 'overview'}
           <AdminOverview on:navigate={(e) => currentTab = e.detail} {providerBalance} {todayRevenue} />
+        {:else if currentTab === 'categories'}
+          <CategoryManager on:navigate={handleCategoryNavigate} />
         {:else if currentTab === 'services'}
-          <ServiceManager />
+          <ServiceManager selectedCategoryFilter={selectedCategoryForServices} />
         {:else if currentTab === 'orders'}
           <OrderManager />
         {:else if currentTab === 'deposits'}
