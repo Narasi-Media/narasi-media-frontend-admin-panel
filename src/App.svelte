@@ -7,6 +7,7 @@
   import DepositApprovals from './lib/components/DepositApprovals.svelte';
   import WebProfileSettings from './lib/components/WebProfileSettings.svelte';
   import RbacManager from './lib/components/RbacManager.svelte';
+  import AdminLogin from './lib/components/AdminLogin.svelte';
   import {
     rolesStore,
     activeRoleStore,
@@ -16,6 +17,8 @@
     rbacActions
   } from './lib/stores/rbacStore';
 
+  let isAuthenticated = false;
+  let currentUser = null;
   let currentTab = 'overview';
   let selectedCategoryForServices = 'all';
   let providerBalance = 'Rp 1.840.000';
@@ -31,6 +34,23 @@
   onMount(() => {
     isDark = document.documentElement.classList.contains('dark');
 
+    // Check existing admin session
+    const sessionStr = localStorage.getItem('narasi_admin_session');
+    if (sessionStr) {
+      try {
+        const session = JSON.parse(sessionStr);
+        if (session && session.username) {
+          isAuthenticated = true;
+          currentUser = session;
+          if (session.role) {
+            rbacActions.setActiveRole(session.role);
+          }
+        }
+      } catch (e) {
+        localStorage.removeItem('narasi_admin_session');
+      }
+    }
+
     const savedWidth = localStorage.getItem('bm_admin_sidebar_width');
     if (savedWidth) {
       const parsed = parseInt(savedWidth, 10);
@@ -40,6 +60,20 @@
       }
     }
   });
+
+  function handleLoginSuccess(event) {
+    currentUser = event.detail;
+    isAuthenticated = true;
+    if (currentUser?.role) {
+      rbacActions.setActiveRole(currentUser.role);
+    }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('narasi_admin_session');
+    isAuthenticated = false;
+    currentUser = null;
+  }
 
   function toggleTheme() {
     isDark = !isDark;
@@ -122,6 +156,9 @@
   }
 </script>
 
+{#if !isAuthenticated}
+  <AdminLogin on:loginSuccess={handleLoginSuccess} />
+{:else}
 <div class="h-screen flex flex-col bg-[#fafafa] dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 font-sans overflow-hidden transition-colors duration-150">
   <!-- Top App Header (Linear / Vercel style) -->
   <header class="ui-header h-12 flex-shrink-0 z-30 px-4 flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 transition-colors">
@@ -216,6 +253,21 @@
       <div class="w-7 h-7 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-mono text-[10px] font-bold flex items-center justify-center border border-zinc-300 dark:border-zinc-700" title={$currentRole.name}>
         {$currentRole.slug === 'superadmin' ? 'SA' : 'AD'}
       </div>
+
+      <!-- Logout Button -->
+      <button
+        type="button"
+        on:click={handleLogout}
+        class="h-7 px-2.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-medium border border-zinc-200 dark:border-zinc-700 transition-colors flex items-center space-x-1"
+        title="Keluar dari sesi admin"
+      >
+        <span>Keluar</span>
+        <svg class="w-3 h-3 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
     </div>
   </header>
 
@@ -511,3 +563,4 @@
     </main>
   </div>
 </div>
+{/if}
