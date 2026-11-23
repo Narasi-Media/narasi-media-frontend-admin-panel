@@ -256,10 +256,18 @@
           {:else}
             {#each filteredOrders as order}
               {@const badge = getStatusBadge(order.status)}
+              {@const isDemo = order.id.startsWith('DEMO') || (order.status && order.status.includes('Demo')) || (order.target && order.target.includes('[DEMO]'))}
               <tr class="hover:bg-zinc-50/70 dark:hover:bg-zinc-900/40 transition-colors">
                 <td class="px-4 py-3 align-top whitespace-nowrap">
-                  <div class="font-mono font-bold text-zinc-900 dark:text-zinc-100 text-[11px]">
-                    #{order.id.slice(0, 8)}...
+                  <div class="flex items-center space-x-1.5">
+                    <span class="font-mono font-bold text-zinc-900 dark:text-zinc-100 text-[11px]">
+                      #{order.id.slice(0, 10)}
+                    </span>
+                    {#if isDemo}
+                      <span class="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                        ⚡ DEMO
+                      </span>
+                    {/if}
                   </div>
                   <div class="text-[10px] text-zinc-400 mt-0.5">
                     {formatDate(order.created_at)}

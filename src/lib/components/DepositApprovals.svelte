@@ -109,13 +109,26 @@
         </thead>
         <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800/80">
           {#each deposits as dep}
+            {@const isDemo = dep.id.startsWith('DEMO') || dep.user_id === 'regiami' || (dep.status && dep.status.includes('Demo')) || (dep.sender_name && dep.sender_name.includes('[DEMO]'))}
             <tr class="hover:bg-zinc-50/60 dark:hover:bg-zinc-900/40 transition-colors">
               <td class="py-3 px-4 font-mono">
-                <div class="font-medium text-zinc-900 dark:text-zinc-100">#{dep.id}</div>
+                <div class="flex items-center space-x-1.5">
+                  <span class="font-medium text-zinc-900 dark:text-zinc-100">#{dep.id}</span>
+                  {#if isDemo}
+                    <span class="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                      ⚡ DEMO
+                    </span>
+                  {/if}
+                </div>
                 <div class="text-[10px] text-zinc-400">{dep.created_at}</div>
               </td>
               <td class="py-3 px-4 font-mono text-zinc-900 dark:text-zinc-200">
-                @{dep.user_id}
+                <div class="flex items-center space-x-1">
+                  <span>@{dep.user_id}</span>
+                  {#if isDemo}
+                    <span class="text-[8px] font-bold text-amber-600 dark:text-amber-400">(Demo)</span>
+                  {/if}
+                </div>
               </td>
               <td class="py-3 px-4 font-mono">
                 <div class="font-semibold text-zinc-900 dark:text-zinc-100">{formatRupiah(dep.total_to_pay?.amount || 0)}</div>
