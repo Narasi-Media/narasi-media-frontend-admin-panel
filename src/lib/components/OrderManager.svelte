@@ -76,6 +76,24 @@
     return matchesSearch && matchesStatus;
   });
 
+  // Pagination State
+  let currentPage = 1;
+  let pageSize = 10;
+
+  $: totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
+  $: if (currentPage > totalPages) currentPage = totalPages;
+  $: if (searchQuery || statusFilter) {
+    // Reset page to 1
+  }
+
+  $: paginatedOrders = filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  function goToPage(p) {
+    if (p >= 1 && p <= totalPages) {
+      currentPage = p;
+    }
+  }
+
   $: totalOrdersCount = orders.length;
   $: processingCount = orders.filter(o => o.status === 'processing' || o.status === 'pending').length;
   $: successCount = orders.filter(o => o.status === 'success').length;
@@ -254,7 +272,7 @@
               <td colspan="7" class="px-4 py-8 text-center text-zinc-400">Tidak ada pesanan yang sesuai filter.</td>
             </tr>
           {:else}
-            {#each filteredOrders as order}
+            {#each paginatedOrders as order}
               {@const badge = getStatusBadge(order.status)}
               {@const isDemo = order.id.startsWith('DEMO') || (order.status && order.status.includes('Demo')) || (order.target && order.target.includes('[DEMO]'))}
               <tr class="hover:bg-zinc-50/70 dark:hover:bg-zinc-900/40 transition-colors">
@@ -329,6 +347,66 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Modern Admin Pagination Bar -->
+    {#if filteredOrders.length > 0}
+      <div class="p-3 bg-zinc-50/60 dark:bg-zinc-900/60 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div class="flex items-center space-x-2 text-zinc-500 dark:text-zinc-400 text-[11px]">
+          <span>Menampilkan <strong class="text-zinc-900 dark:text-zinc-100 font-mono">{(currentPage - 1) * pageSize + 1}</strong> - <strong class="text-zinc-900 dark:text-zinc-100 font-mono">{Math.min(currentPage * pageSize, filteredOrders.length)}</strong> dari <strong class="text-zinc-900 dark:text-zinc-100 font-mono">{filteredOrders.length}</strong> pesanan</span>
+          
+          <span class="text-zinc-300 dark:text-zinc-700">•</span>
+
+          <div class="flex items-center space-x-1">
+            <span>Baris per halaman:</span>
+            <select
+              bind:value={pageSize}
+              on:change={() => currentPage = 1}
+              class="px-2 py-0.5 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[11px] font-mono text-zinc-800 dark:text-zinc-200 focus:outline-none"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-1">
+          <button
+            type="button"
+            disabled={currentPage === 1}
+            on:click={() => goToPage(currentPage - 1)}
+            class="px-2.5 py-1 rounded-md text-xs font-medium border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          >
+            ‹ Sebelumnya
+          </button>
+
+          {#each Array(totalPages) as _, idx}
+            {@const p = idx + 1}
+            {#if totalPages <= 7 || p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1}
+              <button
+                type="button"
+                on:click={() => goToPage(p)}
+                class="w-7 h-7 rounded-md text-xs font-mono font-medium transition-all {currentPage === p ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-bold shadow-xs' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}"
+              >
+                {p}
+              </button>
+            {:else if Math.abs(p - currentPage) === 2}
+              <span class="px-1 text-zinc-400">...</span>
+            {/if}
+          {/each}
+
+          <button
+            type="button"
+            disabled={currentPage === totalPages}
+            on:click={() => goToPage(currentPage + 1)}
+            class="px-2.5 py-1 rounded-md text-xs font-medium border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          >
+            Selanjutnya ›
+          </button>
+        </div>
+      </div>
+    {/if}
   </div>
 
   <!-- MODAL: Update Order Status -->
