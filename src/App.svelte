@@ -7,6 +7,7 @@
   import DepositApprovals from './lib/components/DepositApprovals.svelte';
   import WebProfileSettings from './lib/components/WebProfileSettings.svelte';
   import RbacManager from './lib/components/RbacManager.svelte';
+  import AdminGuide from './lib/components/AdminGuide.svelte';
   import AdminLogin from './lib/components/AdminLogin.svelte';
   import {
     rolesStore,
@@ -150,6 +151,8 @@
         return 'Pengaturan Company Profile & Web';
       case 'rbac':
         return 'Manajemen Role & Hak Akses (RBAC)';
+      case 'guide':
+        return 'Panduan Operasional & SOP';
       default:
         return 'Control Center';
     }
@@ -486,6 +489,37 @@
             </button>
           </div>
         {/if}
+
+        <!-- GROUP 6: BANTUAN & PANDUAN SOP -->
+        <div class="space-y-1">
+          {#if !isCollapsed}
+            <div class="px-2 text-[10px] font-mono uppercase font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider">
+              Bantuan
+            </div>
+          {/if}
+          <button
+            type="button"
+            on:click={() => currentTab = 'guide'}
+            class="w-full flex items-center {isCollapsed ? 'justify-center px-1' : 'justify-between px-2.5'} py-1.5 rounded-lg text-xs font-medium transition-all {currentTab === 'guide' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50'}"
+            title="Panduan Operasional & SOP Admin"
+          >
+            <div class="flex items-center space-x-2.5 truncate">
+              <svg class="w-4 h-4 flex-shrink-0 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              {#if !isCollapsed}
+                <span class="truncate">Panduan &amp; SOP</span>
+              {/if}
+            </div>
+            {#if !isCollapsed}
+              <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/20">
+                SOP
+              </span>
+            {/if}
+          </button>
+        </div>
       </div>
 
       <!-- Bottom Sidebar Footer: Current Role & Width Indicator -->
@@ -558,6 +592,8 @@
           <WebProfileSettings />
         {:else if currentTab === 'rbac'}
           <RbacManager />
+        {:else if currentTab === 'guide'}
+          <AdminGuide on:navigate={(e) => currentTab = e.detail} />
         {/if}
       </div>
     </main>
